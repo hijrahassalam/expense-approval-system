@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: expense_approval
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: expense_approval
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U laravel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
