@@ -62,18 +62,25 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     const auth = useAuthStore();
 
-    if (!auth.user && to.meta.auth !== false) {
+    // Guest routes (login) — skip auth check
+    if (to.meta.guest) {
+        if (auth.user) {
+            return next({ name: 'dashboard' });
+        }
+        return next();
+    }
+
+    // Protected routes — check auth
+    if (!auth.user) {
         try {
             await auth.fetchUser();
         } catch {
+            auth.user = null;
             return next({ name: 'login' });
         }
     }
 
-    if (to.meta.guest && auth.user) {
-        return next({ name: 'dashboard' });
-    }
-
+    // Role check
     if (to.meta.role && !to.meta.role.includes(auth.user?.role)) {
         return next({ name: 'dashboard' });
     }

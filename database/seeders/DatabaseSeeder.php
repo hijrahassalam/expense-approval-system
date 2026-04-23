@@ -13,28 +13,24 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@demo.com',
-            'role' => UserRole::Admin,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@demo.com'],
+            ['name' => 'Admin User', 'role' => UserRole::Admin, 'password' => bcrypt('password')],
+        );
 
-        User::factory()->create([
-            'name' => 'Manager User',
-            'email' => 'manager@demo.com',
-            'role' => UserRole::Manager,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'manager@demo.com'],
+            ['name' => 'Manager User', 'role' => UserRole::Manager, 'password' => bcrypt('password')],
+        );
 
-        User::factory()->create([
-            'name' => 'Staff User',
-            'email' => 'staff@demo.com',
-            'role' => UserRole::Staff,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'staff@demo.com'],
+            ['name' => 'Staff User', 'role' => UserRole::Staff, 'password' => bcrypt('password')],
+        );
 
-        User::factory()->create([
-            'name' => 'Staff User 2',
-            'email' => 'staff2@demo.com',
-            'role' => UserRole::Staff,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'staff2@demo.com'],
+            ['name' => 'Staff User 2', 'role' => UserRole::Staff, 'password' => bcrypt('password')],
+        );
     }
 }

@@ -4,6 +4,7 @@ import api from '../lib/axios';
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
+        loading: false,
     }),
 
     getters: {
@@ -17,12 +18,16 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         async login(credentials) {
             await api.get('/sanctum/csrf-cookie');
-            await api.post('/login', credentials);
-            await this.fetchUser();
+            const { data } = await api.post('/login', credentials);
+            this.user = data.user;
         },
 
         async logout() {
-            await api.post('/logout');
+            try {
+                await api.post('/logout');
+            } catch {
+                // ignore
+            }
             this.user = null;
         },
 
