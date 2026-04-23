@@ -1,10 +1,16 @@
 # Dependencies
-node_modules/
+/node_modules
+/vendor
 
 # Environment
 .env
 .env.local
 .env.production
+
+# Build
+/public/build
+/public/hot
+/public/storage
 
 # IDE
 .idea/
@@ -16,8 +22,16 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Build
-backend/public/build/
+# Laravel
+/storage/*.key
+/storage/pail
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/testing
+/storage/framework/views
+/bootstrap/cache/*.php
 
 # Misc
 *.log
+.phpunit.result.cache
+_auth.json

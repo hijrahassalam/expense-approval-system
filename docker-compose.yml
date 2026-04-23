@@ -1,10 +1,10 @@
 services:
   app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - ./backend:/var/www/html
+      - .:/var/www/html
     ports:
       - "8000:8000"
     depends_on:
