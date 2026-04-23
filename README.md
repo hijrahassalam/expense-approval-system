@@ -63,26 +63,53 @@ expense-approval-system/
 
 ## Local Development
 
+### Using Docker (Recommended)
+
 ```bash
 git clone https://github.com/hijrahassalam/expense-approval-system.git
 cd expense-approval-system
 
-# Start services
-docker-compose up -d
+# Start services (PostgreSQL + App)
+docker-compose up -d --build
+
+# Generate app key
+docker-compose exec app php artisan key:generate --force
+
+# Access the app
+open http://localhost:8000
+```
+
+### Without Docker
+
+```bash
+git clone https://github.com/hijrahassalam/expense-approval-system.git
+cd expense-approval-system
 
 # Install dependencies
-docker-compose exec app composer install
-docker-compose exec app npm install
+composer install
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Configure PostgreSQL in .env
+# DB_CONNECTION=pgsql
+# DB_HOST=127.0.0.1
+# DB_DATABASE=expense_approval
 
 # Run migrations + seed
-docker-compose exec app php artisan migrate --seed
+php artisan migrate --seed
 
-# Frontend dev (with HMR)
-npm run dev
+# Build frontend
+npm run build
+
+# Start server
+php artisan serve
 ```
 
 - Backend API: http://localhost:8000
-- Frontend dev: http://localhost:5173 (proxies /api to backend)
+- Frontend dev: `npm run dev` (with HMR, proxies /api to backend)
 
 ## API Endpoints
 
@@ -114,9 +141,9 @@ php artisan test
 - [x] Phase 1: Foundation (Laravel 13, Sanctum, PostgreSQL, Docker)
 - [x] Phase 1: User model with role enum + Auth endpoints
 - [x] Phase 2: Expense & ApprovalLog models + CRUD
+- [x] Phase 4: Vue 3 SPA (router, stores, views, components)
 - [ ] Phase 2: Authorization (Policy) + Approval workflow
 - [ ] Phase 3: Dashboard API + Swagger docs
-- [x] Phase 4: Vue 3 SPA (router, stores, views, components)
 - [ ] Phase 5: Integration & Deployment
 
 ## License
