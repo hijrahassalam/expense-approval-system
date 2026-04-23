@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\ExpenseStatus;
+use App\Models\ApprovalLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,5 +90,88 @@ class ExpenseController extends Controller
         $expense->delete();
 
         return response()->json(['message' => 'Expense deleted']);
+    }
+
+    public function submit(Expense $expense): JsonResponse
+    {
+        if ($expense->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($expense->status !== ExpenseStatus::Draft) {
+            return response()->json(['message' => 'Only draft expenses can be submitted'], 422);
+        }
+
+        $expense->update([
+            'status' => ExpenseStatus::Submitted,
+            'submitted_at' => now(),
+        ]);
+
+        $expense->approvalLogs()->create([
+            'user_id' => Auth::id(),
+            'action' => 'submitted',
+        ]);
+
+        $expense->load('user');
+
+        return response()->json($expense);
+    }
+
+    public function approve(Request $request, Expense $expense): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user->canApprove()) {
+            return response()->json(['message' => 'Only managers can approve'], 403);
+        }
+
+        if ($expense->status !== ExpenseStatus::Submitted) {
+            return response()->json(['message' => 'Only submitted expenses can be approved'], 422);
+        }
+
+        $request->validate([
+            'comment' => ['nullable', 'string'],
+        ]);
+
+        $expense->update(['status' => ExpenseStatus::Approved]);
+
+        $expense->approvalLogs()->create([
+            'user_id' => $user->id,
+            'action' => 'approved',
+            'comment' => $request->comment,
+        ]);
+
+        $expense->load('user');
+
+        return response()->json($expense);
+    }
+
+    public function reject(Request $request, Expense $expense): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user->canApprove()) {
+            return response()->json(['message' => 'Only managers can reject'], 403);
+        }
+
+        if ($expense->status !== ExpenseStatus::Submitted) {
+            return response()->json(['message' => 'Only submitted expenses can be rejected'], 422);
+        }
+
+        $request->validate([
+            'comment' => ['required', 'string'],
+        ]);
+
+        $expense->update(['status' => ExpenseStatus::Rejected]);
+
+        $expense->approvalLogs()->create([
+            'user_id' => $user->id,
+            'action' => 'rejected',
+            'comment' => $request->comment,
+        ]);
+
+        $expense->load('user');
+
+        return response()->json($expense);
     }
 }
