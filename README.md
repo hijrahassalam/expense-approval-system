@@ -2,9 +2,6 @@
 
 ![CI](https://github.com/hijrahassalam/expense-approval-system/actions/workflows/tests.yml/badge.svg)
 
-**Live Demo:** https://expense-approval.onrender.com
-**API Docs:** https://expense-approval.onrender.com/api/documentation
-
 > Fullstack expense management with multi-role approval workflow.
 > Built with Laravel 13 + Vue 3 + PostgreSQL as a single SPA application.
 
